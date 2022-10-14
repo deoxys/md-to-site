@@ -1,16 +1,13 @@
 Markdown to Site
 ================
 
+This is a continuation of the tool originally created by danielefavi whose code can be found [here](https://github.com/danielefavi/md-to-site)
+
 **Markdown to Site** is a NPM package that converts a folder containing markdown files to a static website.
 
 It automatically creates the **menu**, **search engine** and the **table of contents**. If there are **subfolders** with markdown files it will create the **submenus** accordingly.
 
-# Demo
 
-On the link below you can find an example of website generated with **md-to-site**:  
-[https://danielefavi.github.io/md-to-site/](https://danielefavi.github.io/md-to-site/)
-
-[![Example Screenshot](https://danielefavi.github.io/md-to-site/images/md-to-site_screenshot_example.png)](https://danielefavi.github.io/md-to-site/)
 
 # Installation
 
@@ -50,6 +47,8 @@ The author of this package did not want to copy other asset files automatically 
 --site-title        Title of the website: it will appear on the title tag and
                     on top of the menu; default is "Docs".
 -h, --help          Print the help.
+--include           Include only the files that match the given regex string.
+--exclude           Exclude the files that match the given regex string.
 --index             File name that will be set as index.html. By default is
                     README.md; if there is no README.md then it will be the
                     first occurrence.

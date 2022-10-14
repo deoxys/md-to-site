@@ -7,7 +7,6 @@ const Utils = require('./libs/Utils');
 // show the help
 if (process.argv[2] == '-h' || process.argv[2] == '--help') {
     const help = require('./controllers/Utilities').help;
-
     return help();
 }
 
