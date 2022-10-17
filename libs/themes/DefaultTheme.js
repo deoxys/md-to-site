@@ -1,4 +1,4 @@
-class DefaultTheme {
+export default class DefaultTheme {
 
     /**
      * Return the full HTML page for a doc file.
@@ -159,4 +159,3 @@ class DefaultTheme {
 
 }
 
-module.exports = DefaultTheme;

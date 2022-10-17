@@ -1,10 +1,11 @@
 {
   "name": "md-to-site",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Create a static HTML website from a folder containing markdown files.",
   "license": "MIT",
   "author": "Giovan Angela <deoxys@github.com>",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\"",
     "watch": "sass ./assets/layouts/default/style.scss ./assets/layouts/default/dist/css/style.css --watch --style=compressed",
@@ -31,6 +32,7 @@
   "dependencies": {
     "marked": "^4.1.1",
     "node-sass": "npm:sass@^1.55.0",
-    "striptags": "^3.1.1"
+    "striptags": "^3.1.1",
+    "yargs": "^17.6.0"
   }
 }
