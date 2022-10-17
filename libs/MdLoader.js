@@ -1,12 +1,11 @@
-const fs = require("fs");
-const util = require("util");
+import fs from 'fs';
 
 /**
  * @class Markdown file loader: get all the information of the markdown
  * files contained in the source folder (if the source is not provided will
  * be the folder where the command has been executed).
  */
-class MdLoader {
+export class MdLoader {
     /**
      * Read the content of the given file.
      *
@@ -113,7 +112,7 @@ class MdLoader {
     }
 }
 
-class Graph {
+export class Graph {
     constructor(root) {
         this.nodes = [];
         this.root = new Node(root, null, {}, false);
@@ -165,7 +164,7 @@ class Graph {
 
 }
 
-class Node {
+export class Node {
     constructor(id, parent = null, data, leaf = false) {
         this.id = id.toLowerCase();
         this.parent = parent;
@@ -205,7 +204,7 @@ class Node {
         this.leaf ||= value;
     }
 
-    [require("util").inspect.custom](depth, opts) {
+    inspect(depth, opts) {
         if (this.parent) {
             return (
                 "{ Node: " +
@@ -224,7 +223,6 @@ class Node {
     }
 }
 
-module.exports = { MdLoader, Node, Graph };
 
 class Data {
     constructor(path, file, name, parentDir, indent, md = "", isMD = false) {

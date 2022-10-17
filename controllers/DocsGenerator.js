@@ -4,10 +4,9 @@
  * a folder containing the markdown files.
  */
 
-const Utils = require('../libs/Utils');
-const {MdLoader, Graph} = require('../libs/MdLoader');
-const HtmlRender = require('../libs/HtmlRender');
-
+import Utils from "../libs/Utils.js";
+import { MdLoader, Graph } from "../libs/MdLoader.js";
+import HtmlRender from "../libs/HtmlRender.js";
 
 /**
  * Holds the keywords for building the searching index.
@@ -15,7 +14,17 @@ const HtmlRender = require('../libs/HtmlRender');
  */
 var searchIndex = [];
 
+var VERBOSE_LEVEL = 0;
 
+function WARN() {
+    VERBOSE_LEVEL >= 0 && console.log.apply(console, arguments);
+}
+function INFO() {
+    VERBOSE_LEVEL >= 1 && console.log.apply(console, arguments);
+}
+function DEBUG() {
+    VERBOSE_LEVEL >= 2 && console.log.apply(console, arguments);
+}
 
 /**
  * Compile the markdown files to HTML.
@@ -26,26 +35,36 @@ var searchIndex = [];
 function build(argv) {
     try {
         var params = validateArguments(argv);
+        VERBOSE_LEVEL = argv.verbose;
     } catch (e) {
         Utils.logErrorToConsole(e);
         return;
     }
 
-    const mdLoader = new MdLoader;
-    const htmlRender = new HtmlRender;
-    const graph = new Graph(params.sourceDir);
+    const mdLoader = new MdLoader();
+    const htmlRender = new HtmlRender();
+    const graph = new Graph(params.source);
 
     // loading the markdown files information from the source directory
-    console.log(params);
-    mdLoader.getMdFiles(params.sourceDir, null, 0, excludeRegex=params.excludeRegex, includeRegex=params.includeRegex, graph.getRoot(), graph)
-        .then(arr => {
-            graph.filterNonLeafNodes()
+    DEBUG(params);
+    mdLoader
+        .getMdFiles(
+            params.source,
+            null,
+            0,
+            params.exclude,
+            params.include,
+            graph.getRoot(),
+            graph
+        )
+        .then((arr) => {
+            graph.filterNonLeafNodes();
             graph.cleanNonLeafNodes();
-            arr = graph.getNodes().map(e => e.data);
+            arr = graph.getNodes().map((e) => e.data);
 
-            console.log(arr.map(e => e.path));
+            DEBUG(arr.map((e) => e.path));
             if (!arr.length) {
-                throw(`The source folder "${params.sourceDir}" has no markdown files.`);
+                throw `The source folder "${params.source}" has no markdown files.`;
             }
 
             // add to the array of markdown file the HTML translation, page title and html filename
@@ -56,39 +75,41 @@ function build(argv) {
             // console.log(docs.map(e => e.path));
 
             // creating the target directory if it does not exist
-            Utils.createDirIfNotExists(params.targetDir);
+            Utils.createDirIfNotExists(params.target);
 
             // copy the assets (CSS files) to the target directory
-            htmlRender.copyAssetsToDestinationDir(params.targetDir);
+            htmlRender.copyAssetsToDestinationDir(params.target);
 
             // looping the DOCS
             for (var doc of docs) {
                 // if the search is hidden then it exludes building the search index
-                if (!params.hide || !params.hide.includes('search')) appendToSearchIndex(doc);
+                if (!params.hide || !params.hide.includes("search"))
+                    appendToSearchIndex(doc);
 
                 // getting the HTML of the page
-                var html = htmlRender.getHtmlPage(docs, doc, 'default', {
+                var html = htmlRender.getHtmlPage(docs, doc, "default", {
                     title: params.siteTitle,
                     hide: params.hide,
                 });
 
                 // writing the HTML page content to the target file
-                Utils.writeFileSync(params.targetDir + doc.htmlFileName, html);
+                Utils.writeFileSync(params.target + doc.htmlFileName, html);
 
                 // if the current doc in the loop is signed as index then the HTML
                 // content will be placed in the index as well
                 if (doc.isIndex) {
-                    Utils.writeFileSync(params.targetDir + 'index.html', html);
+                    Utils.writeFileSync(params.target + "index.html", html);
                 }
 
-                console.log('The file "' + doc.file + '" has been compiled.');
+                INFO('The file "' + doc.file + '" has been compiled.');
             }
 
-            createIndexSearchFile(params.targetDir);
+            createIndexSearchFile(params.target);
 
-            console.log('The docs are been compile successfully');
+            WARN("The docs have been compiled successfully!)");
+            WARN("They can be found here: " + params.target);
         })
-        .catch(e => Utils.logErrorToConsole(e));
+        .catch((e) => Utils.logErrorToConsole(e));
 }
 
 /**
@@ -97,24 +118,24 @@ function build(argv) {
  * @param {Object} params     directory where to store the file
  * @returns void
  */
-function createIndexSearchFile(targetDir) {
+function createIndexSearchFile(target) {
     var js = `\nvar searchIndex = [];\n`;
 
-    for (var i=0; i<searchIndex.length; i++) {
+    for (var i = 0; i < searchIndex.length; i++) {
         var file = searchIndex[i].file.replace(/'/g, "\\'"); // escaping the single quote
         var title = searchIndex[i].title.replace(/'/g, "\\'"); // escaping the single quote
         js += `searchIndex[${i}]={f:'${file}',t:'${title}',c:[`;
 
-        var strSearches = '';
+        var strSearches = "";
         if (searchIndex[i].searches.length) {
             for (var search of searchIndex[i].searches) {
-                strSearches += `'`+ search.replace(/'/g, "\\'") +`',`
+                strSearches += `'` + search.replace(/'/g, "\\'") + `',`;
             }
         }
         js += strSearches + `]};\n`;
     }
 
-    Utils.writeFileSync(targetDir + 'js/searchIndex.js', js);
+    Utils.writeFileSync(target + "js/searchIndex.js", js);
 }
 
 /**
@@ -134,8 +155,8 @@ function appendToSearchIndex(doc) {
 
         searchIndex.push({
             file: doc.htmlFileName,
-            title: doc.title || '',
-            searches
+            title: doc.title || "",
+            searches,
         });
     }
 }
@@ -146,55 +167,23 @@ function appendToSearchIndex(doc) {
  * @param {Object} argv     list of arguments coming from process.argv
  * @returns {Object}        data validated
  */
-function  validateArguments(argv) {
-    // setting the default arguments
-    var retArgs = {
-        sourceDir: './',
-        targetDir: './build',
-        indexFile: null,
-        siteTitle: 'Docs',
-        hide: null,
-        excludeRegex: null,
-        includeRegex: null,
-    };
+function validateArguments(argv) {
+    if (argv.hide) {
+        argv.hide = argv.hide.split(",");
 
-    // map of the variable with the argument key
-    var keyArgMap = {
-        siteTitle: 'site-title',
-        indexFile: 'index',
-        sourceDir: 'source',
-        targetDir: 'target',
-        hide: 'hide',
-        excludeRegex: 'exclude',
-        includeRegex: 'include',
-    };
-
-    for (var key in keyArgMap) {
-        var indexArg = argv.indexOf(`--${keyArgMap[key]}`);
-
-        if (indexArg && indexArg > 1) {
-            // VALIDATION ERROR: the value of the argument is missing
-            if (!argv[indexArg + 1] || (argv[indexArg + 1] && !argv[indexArg + 1].length)) {
-                throw(`The value for the argument --${searchArg} is not provided.`);
-            }
-            retArgs[key] = argv[indexArg + 1];
-        }
-    }
-
-    if (retArgs.hide) {
-        retArgs.hide = retArgs.hide.split(',');
-
-        for(var hideElem of retArgs.hide) {
+        for (var hideElem of argv.hide) {
             if (!Utils.getHideItems().includes(hideElem)) {
-                throw(`The argument "${hideElem}" of the parameter --hide is not valid. The values allowed are: ` + Utils.getHideItems().join(','));
+                throw (
+                    `The argument "${hideElem}" of the parameter --hide is not valid. The values allowed are: ` +
+                    Utils.getHideItems().join(",")
+                );
             }
         }
     }
 
-    retArgs.sourceDir = Utils.sanitizePath(retArgs.sourceDir);
-    retArgs.targetDir = Utils.sanitizePath(retArgs.targetDir);
-    return retArgs;
+    argv.source = Utils.sanitizePath(argv.source);
+    argv.target = Utils.sanitizePath(argv.target);
+    return argv;
 }
 
-
-module.exports = { build };
+export { build };

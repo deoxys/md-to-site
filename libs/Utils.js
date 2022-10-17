@@ -1,11 +1,12 @@
-const fs = require('fs');
-var path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 
 /**
  * @class utility class
  */
-class Utils {
+export default class Utils {
 
     /**
      * Format and log to the console an exception.
@@ -90,7 +91,7 @@ class Utils {
             source = source.substring(1);
         }
 
-        fs.copyFileSync(path.resolve(__dirname, source), target);
+        fs.copyFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), source), target);
     }
 
     /**
@@ -142,6 +143,3 @@ class Utils {
     }
 }
 
-
-
-module.exports = Utils;

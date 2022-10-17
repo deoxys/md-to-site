@@ -43,23 +43,43 @@ The author of this package did not want to copy other asset files automatically 
 # List of Parameters
 
 ```
--b, --build         Builds the website from the markdown code.
---site-title        Title of the website: it will appear on the title tag and
-                    on top of the menu; default is "Docs".
--h, --help          Print the help.
---include           Include only the files that match the given regex string.
---exclude           Exclude the files that match the given regex string.
---index             File name that will be set as index.html. By default is
-                    README.md; if there is no README.md then it will be the
-                    first occurrence.
---source            Directory of the source folder containing the markdown
-                    files; the default is the folder where the command is run.
---target            Directory where the compiled HTML are going to be stored;
-                    the default directory is ./build
--v, --version       Print the version.
+Usage: md-to-site <command> [options]
 
-NOTE: if the arguments --site-title, --index, --source or --target contains
-spaces then wrap the string in quotes. EG: --site-title "My Docs Title"
+Commands:
+  md-to-site build <source> <target>  Builds the website from the markdown code.
+
+Options:
+  --help     Show help                                                 [boolean]
+  --version  Show version number                                       [boolean]
+  
+```
+
+```
+md-to-site build <source> <target>
+
+Builds the website from the markdown code.
+
+Positionals:
+  source  Directory of the source folder containing the markdown files.
+                                                             [string] [required]
+  target  Directory where the compiled HTML are going to be stored.
+                                                             [string] [required]
+
+Options:
+      --help        Show help                                          [boolean]
+      --version     Show version number                                [boolean]
+  -i, --include     Include only the paths that match the given regex string.
+                                                                        [string]
+  -e, --exclude     Exclude the paths that match the given regex string.[string]
+  -n, --index       File name that will be set as index.html. By default is READ
+                    ME.md; if there is no README.md then it will be the first oc
+                    currence.                                           [string]
+  -t, --site-title  Title of the website: it will appear on the title tag and on
+                     top of the menu.                                   [string]
+      --hide        Hide the functionalities or part of the website. Insert the
+                    list of items to hide comma separated. Possible values: sear
+                    ch, toc.                                            [string]
+                    
 ```
 
 # Docker

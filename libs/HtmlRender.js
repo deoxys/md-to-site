@@ -1,12 +1,12 @@
-const marked = require('marked');
-const striptags = require('striptags');
-const Utils = require('./Utils');
-
+import { marked } from 'marked';
+import striptags from 'striptags';
+import Utils from './Utils.js';
+import ThemeClass from './themes/DefaultTheme.js';
 
 /**
  * @class compile the markdown contained in a folder to a static website.
  */
-class HtmlRender {
+export default class HtmlRender {
 
     /**
      * Add to each entry of the markdown doc file information the HTML
@@ -188,16 +188,9 @@ class HtmlRender {
      * @return {String}
      */
     getHtmlPage(docs, currentDoc, theme='default', settings={}) {
-        if (theme == 'default') theme = 'DefaultTheme';
-
-        const ThemeClass = require('./themes/' + theme);
         var themeInst = new ThemeClass;
 
         return themeInst.getHtmlPage(docs, currentDoc, settings);
     }
 
 }
-
-
-
-module.exports = HtmlRender;
