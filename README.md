@@ -62,8 +62,19 @@ NOTE: if the arguments --site-title, --index, --source or --target contains
 spaces then wrap the string in quotes. EG: --site-title "My Docs Title"
 ```
 
-# Links
+# Docker
+To build the image run the following command in the root of this source folder:
+```
+docker build --tag md-to-site ./
+```
 
-- **NPM package**: [https://www.npmjs.com/package/md-to-site](https://www.npmjs.com/package/md-to-site)
-- **Github Repo**: [https://github.com/danielefavi/md-to-site/](https://github.com/danielefavi/md-to-site/)
-- **Demo**: [https://danielefavi.github.io/md-to-site/](https://danielefavi.github.io/md-to-site/)
+To run the container run the following command:
+```
+docker run -v [Path to input folder]:/in -v [Path to output folder]:/out --rm md-to-site -b --source /in --target /out
+```
+
+For example:
+```
+docker run -v $PWD/pagebuilder:/in -v $PWD/pagebuilder/out:/out --rm md-to-site -b --source /in --target /out
+```
+Note: --target has to be set in order to have output written outside of the container.
