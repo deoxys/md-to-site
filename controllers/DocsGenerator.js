@@ -5,7 +5,7 @@
  */
 
 import Utils from "../libs/Utils.js";
-import { MdLoader, Graph } from "../libs/MdLoader.js";
+import { MdLoader, Tree } from "../libs/MdLoader.js";
 import HtmlRender from "../libs/HtmlRender.js";
 
 /**
@@ -43,7 +43,7 @@ function build(argv) {
 
     const mdLoader = new MdLoader();
     const htmlRender = new HtmlRender();
-    const graph = new Graph(params.source);
+    const tree = new Tree(params.source);
 
     // loading the markdown files information from the source directory
     DEBUG(params);
@@ -54,14 +54,14 @@ function build(argv) {
             0,
             params.exclude,
             params.include,
-            graph.getRoot(),
-            graph
+            tree.getRoot(),
+            tree
         )
         .then((arr) => {
-            graph.filterNonLeafNodes();
-            graph.cleanNonLeafNodes();
-            arr = graph.getNodes().map((e) => e.data);
-
+            
+            // console.log(tree.getNodes().filter(e => e.leaf));
+            arr = tree.getNodes().filter(e => e.leaf).map((e) => e.data);
+            
             DEBUG(arr.map((e) => e.path));
             if (!arr.length) {
                 throw `The source folder "${params.source}" has no markdown files.`;

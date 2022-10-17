@@ -137,6 +137,7 @@ export default class HtmlRender {
         if (indexDoc) indexDoc = indexDoc.toLowerCase();
 
         for (var i=0; i<docs.length; i++) {
+            // console.log(docs[i]);    
             if (indexDoc && (indexDoc == docs[i].name.toLowerCase() || indexDoc == docs[i].file.toLowerCase())) {
                 candidateIndex = i; // the candidate index found: the name matches with indexDoc
                 break;

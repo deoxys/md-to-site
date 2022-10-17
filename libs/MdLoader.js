@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from "fs";
 
 /**
  * @class Markdown file loader: get all the information of the markdown
@@ -30,7 +30,7 @@ export class MdLoader {
         excludeRegex = null,
         includeRegex = null,
         parent,
-        graph
+        tree
     ) {
         return new Promise((resolve, reject) => {
             // reading the directory
@@ -48,11 +48,9 @@ export class MdLoader {
                         } else {
                             // if the path is a directory then it will scan all the file contained in that directory
                             try {
-                                var isMD = false;
                                 var name = file;
-                                var md = undefined;
                                 var current = new Node(
-                                    path.replace(graph.getRoot().id, ""),
+                                    path.replace(tree.getRoot().id, ""),
                                     parent,
                                     new Data(
                                         path,
@@ -70,10 +68,9 @@ export class MdLoader {
                                     excludeRegex,
                                     includeRegex,
                                     current,
-                                    graph
+                                    tree
                                 );
                                 current.addChildren(nodes);
-                                graph.addNode(current);
                             } catch (e) {
                                 return reject(e);
                             }
@@ -83,10 +80,8 @@ export class MdLoader {
                     ) {
                         // scanning the markdown file
                         var name = file.substring(0, file.length - 3); // removing the .md extention
-                        var md = this.getFileContent(path); // getting the content of the file
-                        var isMD = true;
                         var newNode = new Node(
-                            path.replace(graph.getRoot().id, ""),
+                            path.replace(tree.getRoot().id, ""),
                             parent,
                             new Data(
                                 path,
@@ -100,26 +95,22 @@ export class MdLoader {
                             true
                         );
                         parent.addChild(newNode);
-                        graph.addNode(newNode);
                     }
                 }
 
                 // console.log(node);
-
+                tree.sortNodes();
                 resolve([]);
             });
         });
     }
 }
 
-export class Graph {
+export class Tree {
     constructor(root) {
         this.nodes = [];
         this.root = new Node(root, null, {}, false);
-    }
-
-    addNode(node) {
-        this.nodes.push(node);
+        this.sorted = false;
     }
 
     getRoot() {
@@ -130,38 +121,20 @@ export class Graph {
         this.nodes = this.nodes.filter((n) => n.id !== node.id);
     }
 
-    filterNonLeafNodes(node = null, depth = 0) {
-        if (node) {
-            if (node.children.length > 0) {
-                for (var child of node.children) {
-                    node.setLeaf(this.filterNonLeafNodes(child, depth + 1));
-                }
-                return node.leaf;
-            } else {
-                return node.leaf;
-            }
-        }
-        return this.filterNonLeafNodes(this.root, depth + 1);
-    }
-
-    cleanNonLeafNodes() {
-        this.nodes = this.nodes.filter((n) => n.leaf);
-    }
-
     getNodes(node = null) {
         if (node) {
-            if (node.leaf){
-                var nodes = node == this.root ? [] : [node];
-                for (var child of node.children) {
-                    nodes = nodes.concat(this.getNodes(child));
-                }
-                return nodes;
+            node.id != this.root.id ? this.nodes.push(node) : null;
+            for (var child of node.children) {
+                this.nodes.concat(this.getNodes(child));
             }
-            return [];
+            return this.nodes;
         }
         return this.getNodes(this.root);
     }
 
+    sortNodes() {
+        this.root.sortChildren();
+    }
 }
 
 export class Node {
@@ -178,22 +151,41 @@ export class Node {
     }
 
     addChild(child) {
+        if (child.leaf) {
+            this.setLeaf(true)
+        }
         this.children.push(child);
-        this.sortChildren();
     }
 
     addChildren(children) {
+        for (var child of children) {
+            if (child.leaf) {
+                this.setLeaf(true)
+            }
+            this.addChild(child);
+        }
         this.children = this.children.concat(children);
-        this.sortChildren();
     }
 
     sortChildren() {
         this.children.sort((a, b) => {
             if (a.data.isMD && !b.data.isMD) return -1;
             if (b.data.isMD && !a.data.isMD) return 1;
-            if (b.data.isMD && a.data.isMD) return a.id == b.id ? 0 : a.id < b.id ? -1 : 0;
+            if (b.data.isMD && a.data.isMD)
+                return a.id == b.id ? 0 : a.id < b.id ? -1 : 0;
             return a.id == b.id ? 0 : a.id < b.id ? -1 : 1;
         });
+        for (var child of this.children) {
+            child.sortChildren();
+        }
+    }
+
+    compareTo(other) {
+        if (this.data.isMD && !other.data.isMD) return -1;
+        if (other.data.isMD && !this.data.isMD) return 1;
+        if (other.data.isMD && this.data.isMD)
+            return this.id == other.id ? 0 : this.id < other.id ? -1 : 0;
+        return this.id == other.id ? 0 : this.id < other.id ? -1 : 1;
     }
 
     removeChild(child) {
@@ -202,6 +194,9 @@ export class Node {
 
     setLeaf(value) {
         this.leaf ||= value;
+        if (this.parent) {
+            this.parent.setLeaf(value);
+        }
     }
 
     inspect(depth, opts) {
@@ -222,7 +217,6 @@ export class Node {
         }
     }
 }
-
 
 class Data {
     constructor(path, file, name, parentDir, indent, md = "", isMD = false) {
