@@ -244,7 +244,7 @@ nav {
         width: 100%;
         text-align: left;
         text-decoration: none;
-        padding: 8px 8px;
+        padding: 0px 8px;
         margin: 8px 0 0 0;
         font-size: 16px;
         font-weight: bold;
@@ -256,16 +256,22 @@ nav {
         &.depth-2 { padding-left: 35px; font-size: 1rem; margin: 0;  }
         &.depth-3 { padding-left: 45px; font-size: 1rem; margin: 0;  }
         &.depth-4 { padding-left: 55px; font-size: 1rem; margin: 0;  }
-        &.depth-5 { padding-left: 60px; font-size: 1rem; margin: 0;  }
-        &.depth-6 { padding-left: 65px; font-size: 1rem; margin: 0;  }
-        &.depth-7 { padding-left: 70px; font-size: 1rem; margin: 0;  }
-        &.depth-8 { padding-left: 75px; font-size: 1rem; margin: 0;  }
-        &.depth-9 { padding-left: 80px; font-size: 1rem; margin: 0;  }
-        &.depth-10 { padding-left: 85px; font-size: 1rem; margin: 0; }
+        &.depth-5 { padding-left: 65px; font-size: 1rem; margin: 0;  }
+        &.depth-6 { padding-left: 75px; font-size: 1rem; margin: 0;  }
+        &.depth-7 { padding-left: 85px; font-size: 1rem; margin: 0;  }
+        &.depth-8 { padding-left: 95px; font-size: 1rem; margin: 0;  }
+        &.depth-9 { padding-left: 105px; font-size: 1rem; margin: 0;  }
+        &.depth-10 { padding-left: 115px; font-size: 1rem; margin: 0; }
         
         &::after {
             content: " / ";
         }
+    }
+
+    .rec-depth {
+      margin-left: 10px;
+      border-left: gray dotted 1px;
+      padding-bottom: 10px;
     }
 
 
@@ -285,18 +291,18 @@ nav {
           // padding-top: 6px;
           // padding-bottom: 6px;
 
-          &::before { content:"└ "; }
+          &::before { content:"- "; }
 
           &.depth-1 { padding-left: 25px; }
           &.depth-2 { padding-left: 35px; }
           &.depth-3 { padding-left: 45px; }
           &.depth-4 { padding-left: 55px; }
-          &.depth-5 { padding-left: 60px; }
-          &.depth-6 { padding-left: 65px; }
-          &.depth-7 { padding-left: 70px; }
-          &.depth-8 { padding-left: 75px; }
-          &.depth-9 { padding-left: 80px; }
-          &.depth-10 { padding-left: 85px; }
+          &.depth-5 { padding-left: 65px; }
+          &.depth-6 { padding-left: 75px; }
+          &.depth-7 { padding-left: 85px; }
+          &.depth-8 { padding-left: 95px; }
+          &.depth-9 { padding-left: 105px; }
+          &.depth-10 { padding-left: 115px; }
       }
 
       &:hover {

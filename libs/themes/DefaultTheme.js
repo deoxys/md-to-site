@@ -6,21 +6,21 @@ export default class DefaultTheme {
      * @param  {Array}  docs                    list of all the doc files
      * @param  {Object} currentDoc              doc file that is going to be compiled to HTML
      * @param  {Object} [settings={}]           general site settings (like title)
+     * @param  {Object} node
      * @return {String}
      */
-    getHtmlPage(docs, currentDoc, settings={})
+    getHtmlPage(docs, currentDoc, node, settings={})
     {
         var siteTile = settings.title || 'Docs';
         var search = settings.hide && settings.hide.includes('search') ? false : true;
         var toc = settings.hide && settings.hide.includes('toc') ? false : true;
-
         var html = `<!DOCTYPE html>
         <html lang="en" dir="ltr">
             <head>
                 <meta charset="utf-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1">
                 <link rel="stylesheet" href="css/style.css">
-                <title>${siteTile} | ${currentDoc.title}</title>
+                <title>${siteTile} | ${currentDoc.data.title}</title>
             </head>
             <body>
                 <header>
@@ -32,10 +32,10 @@ export default class DefaultTheme {
                     <a href="index.html" class="site-title">${siteTile}</a>
                 </header>
 
-                `+ this.getMenu(docs, currentDoc.fullTitle, siteTile) +`
+                `+ this.getMenuTree(docs, currentDoc.data.fullTitle, siteTile, node) +`
                 <div class="main-content">
                     <div class="markdown-body" id="markdown-body">
-                        `+ currentDoc.html +`
+                        `+ currentDoc.data.html +`
                     </div>`;
 
                     if (search) html += this.getSearchBoxResultHtml();
@@ -99,10 +99,10 @@ export default class DefaultTheme {
     getToc(doc) {
         var html = '';
 
-        if (doc.tableOfContents && doc.tableOfContents.length) {
+        if (doc.data.tableOfContents && doc.data.tableOfContents.length) {
             html += `<div class="toc-container" id="toc"><ul class="table-of-contents">`;
 
-            for (var tocEntry of doc.tableOfContents) {
+            for (var tocEntry of doc.data.tableOfContents) {
                 html += `<li class="toc-depth-${tocEntry.depth}"><a href="#${tocEntry.id}">${tocEntry.text}</a></li>`;
             }
 
@@ -121,8 +121,6 @@ export default class DefaultTheme {
      * @return {String}
      */
     getMenu(docs, activeEntryFtitle=null, siteTile='Docs') {
-        var prevDoc = null;
-
         var html = `
             <nav class="sidebar collapse animate-left" id="menuSidebar">
                 <div class="text-right">
@@ -133,20 +131,18 @@ export default class DefaultTheme {
                 // console.log("---------------------");
                 for (var doc of docs) {
                     // adding the submenu title only when the parent menu title changes
-                    if (!doc.isMD) {
+                    if (!doc.data.isMD) {
                         // console.log(doc);
                         // if (prevDoc && prevDoc.parentMenuTitle != doc.parentMenuTitle) {
-                            var indentClassParent = doc.indent > 0 ? 'submenu-item depth-' + doc.indent : '';
-                            html += `<h4 class="submenu-title ${indentClassParent}">${doc.title}</h4>`;
+                            var indentClassParent = doc.data.indent > 0 ? 'submenu-item depth-' + doc.data.indent : '';
+                            html += `<h4 class="submenu-title ${indentClassParent}">${doc.data.title}</h4>`;
                         // }
                     } else {
                         // class for indenting the menu entries for sub folders
-                        var indentClass = doc.indent > 0 ? 'submenu-item depth-' + doc.indent : '';
+                        var indentClass = doc.data.indent > 0 ? 'submenu-item depth-' + doc.data.indent : '';
     
-                        var entryClass = doc.fullTitle == activeEntryFtitle ? 'active' : '';
-                        html += `<div><a href="${doc.htmlFileName}" class="menu-item ${entryClass} ${indentClass}">${doc.title}</a></div>`;
-    
-                        var prevDoc = doc;
+                        var entryClass = doc.data.fullTitle == activeEntryFtitle ? 'active' : '';
+                        html += `<div><a href="${doc.data.htmlFileName}" class="menu-item ${entryClass} ${indentClass}">${doc.data.title}</a></div>`;
                     }
                 }
                 html += `
@@ -155,6 +151,58 @@ export default class DefaultTheme {
         `;
 
         return html;
+    }
+
+    getMenuTree(docs, activeEntryFtitle=null, siteTile='Docs', node) {
+        var html = `
+            <nav class="sidebar collapse animate-left" id="menuSidebar">
+                <div class="text-right">
+                    <a href="javascript:void(0)" onclick="closeSidebarMenu()" class="close-menu hide-large">
+                        <img src="css/images/close-black.svg" alt="">
+                    </a>
+                </div>`;
+                html += this.createMenu(docs, activeEntryFtitle, siteTile, node);
+                html += `
+                <div class="filler"></>
+            </nav>
+            `
+        return html;
+
+    }
+
+    createMenu(docs, activeEntryFtitle=null, siteTile='Docs', node, depth=0) {
+        if (node.root) {
+            var html = ``;
+            for (var child of node.children) {
+                html += this.createMenu(docs, activeEntryFtitle, siteTile, child, depth);
+            }
+            return html;
+        }
+        if (node.leaf) {
+            if (node.children.length > 0) {
+                console.log(node.data.path)
+                var html = ``;
+                html += `<h4 class="submenu-title">${node.data.title}</h4>`;
+
+                html += `<div class="d-${depth} rec-depth">`
+                for (var child of node.children) {
+                    html += this.createMenu(docs, activeEntryFtitle, siteTile, child, depth+1);
+                }
+                html += `</div>`;
+                return html;
+            }
+
+            var html = ``;
+            if (!node.data.isMD) {
+                html += `<h4 class="submenu-title">${node.data.title}</h4>`;
+            } else {
+                var entryClass = node.data.fullTitle == activeEntryFtitle ? 'active' : '';
+                html += `<a href="${node.data.htmlFileName}" class="menu-item ${entryClass} submenu-item d-${depth}">${node.data.title}</a>`;
+            }
+
+            return html;
+        }   
+        return '';
     }
 
 }

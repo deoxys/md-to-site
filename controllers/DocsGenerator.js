@@ -5,7 +5,7 @@
  */
 
 import Utils from "../libs/Utils.js";
-import { MdLoader, Graph } from "../libs/MdLoader.js";
+import { MdLoader, Tree } from "../libs/MdLoader.js";
 import HtmlRender from "../libs/HtmlRender.js";
 
 /**
@@ -43,7 +43,7 @@ function build(argv) {
 
     const mdLoader = new MdLoader();
     const htmlRender = new HtmlRender();
-    const graph = new Graph(params.source);
+    const tree = new Tree(params.source);
 
     // loading the markdown files information from the source directory
     DEBUG(params);
@@ -54,54 +54,54 @@ function build(argv) {
             0,
             params.exclude,
             params.include,
-            graph.getRoot(),
-            graph
+            tree.getRoot(),
+            tree
         )
         .then((arr) => {
-            graph.filterNonLeafNodes();
-            graph.cleanNonLeafNodes();
-            arr = graph.getNodes().map((e) => e.data);
-
-            DEBUG(arr.map((e) => e.path));
+            
+            arr = tree.getNodes().filter(e => e.leaf);
+            
+            DEBUG(arr.map((e) => e.data.path));
             if (!arr.length) {
                 throw `The source folder "${params.source}" has no markdown files.`;
             }
-
+            
             // add to the array of markdown file the HTML translation, page title and html filename
             var docs = htmlRender.appendHtmlInfoToMdDocs(arr, params.indexFile);
-
+            
             // sort the array by parent dir name and full title
             // docs = Utils.sortFiles(docs);
             // console.log(docs.map(e => e.path));
-
+            
             // creating the target directory if it does not exist
             Utils.createDirIfNotExists(params.target);
-
+            
             // copy the assets (CSS files) to the target directory
             htmlRender.copyAssetsToDestinationDir(params.target);
-
+            
             // looping the DOCS
             for (var doc of docs) {
                 // if the search is hidden then it exludes building the search index
                 if (!params.hide || !params.hide.includes("search"))
-                    appendToSearchIndex(doc);
-
+                appendToSearchIndex(doc);
+                
                 // getting the HTML of the page
-                var html = htmlRender.getHtmlPage(docs, doc, "default", {
+                const t = tree.root;
+                var html = htmlRender.getHtmlPage(docs, doc, "default", tree.root, {
                     title: params.siteTitle,
                     hide: params.hide,
                 });
 
                 // writing the HTML page content to the target file
-                Utils.writeFileSync(params.target + doc.htmlFileName, html);
+                Utils.writeFileSync(params.target + doc.data.htmlFileName, html);
 
                 // if the current doc in the loop is signed as index then the HTML
                 // content will be placed in the index as well
-                if (doc.isIndex) {
+                if (doc.data.isIndex) {
                     Utils.writeFileSync(params.target + "index.html", html);
                 }
 
-                INFO('The file "' + doc.file + '" has been compiled.');
+                INFO('The file "' + doc.data.file + '" has been compiled.');
             }
 
             createIndexSearchFile(params.target);

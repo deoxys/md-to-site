@@ -18,22 +18,22 @@ export default class HtmlRender {
      */
     appendHtmlInfoToMdDocs(mdDocs, indexDocName=null, search=true) {
         var docs = this.appendGeneralInfoToDocs(mdDocs, indexDocName);
-
+        
         return docs.map(entry => {
             // console.log(entry);
             // transforming the markdown to elements to convert
-            if (!entry.md) {
-                entry.md = "";
+            if (!entry.data.md) {
+                entry.data.md = "";
             }
-            const tokens = marked.lexer(entry.md);
+            const tokens = marked.lexer(entry.data.md);
 
             // generating the table of contents
-            entry.tableOfContents = this.generateTableOfContents(tokens);
+            entry.data.tableOfContents = this.generateTableOfContents(tokens);
 
-            entry.searchIndex = this.searchIndexElements(tokens);
+            entry.data.searchIndex = this.searchIndexElements(tokens);
 
             // converting the elements to HTML
-            entry.html = marked.parser(tokens);
+            entry.data.html = marked.parser(tokens);
 
             return entry;
         });
@@ -100,18 +100,18 @@ export default class HtmlRender {
      */
     appendGeneralInfoToDocs(mdDocs, indexDocName=null) {
         var docs = mdDocs.map(entry => {
-            entry.title = Utils.camelize(entry.name); // transforming the name of the file to the title menu
-            entry.parentMenuTitle = Utils.camelize(entry.parentDir);
-            entry.fullTitle = `${entry.parentMenuTitle} - ${entry.title}`; // full title needed for the ordering
-            entry.isIndex = false;
+            entry.data.title = Utils.camelize(entry.data.name); // transforming the name of the file to the title menu
+            entry.data.parentMenuTitle = Utils.camelize(entry.data.parentDir);
+            entry.data.fullTitle = `${entry.data.parentMenuTitle} - ${entry.data.title}`; // full title needed for the ordering
+            entry.data.isIndex = false;
 
-            if (entry.parentDir && entry.parentDir.length) {
-                var htmlFileName = entry.parentDir + '_' + entry.name + '.html';
+            if (entry.data.parentDir && entry.data.parentDir.length) {
+                var htmlFileName = entry.data.parentDir + '_' + entry.data.name + '.html';
             } else {
-                var htmlFileName = entry.name + '.html';
+                var htmlFileName = entry.data.name + '.html';
             }
 
-            entry.htmlFileName = htmlFileName;
+            entry.data.htmlFileName = htmlFileName;
 
             return entry;
         });
@@ -137,15 +137,16 @@ export default class HtmlRender {
         if (indexDoc) indexDoc = indexDoc.toLowerCase();
 
         for (var i=0; i<docs.length; i++) {
-            if (indexDoc && (indexDoc == docs[i].name.toLowerCase() || indexDoc == docs[i].file.toLowerCase())) {
+            // console.log(docs[i]);    
+            if (indexDoc && (indexDoc == docs[i].data.name.toLowerCase() || indexDoc == docs[i].data.file.toLowerCase())) {
                 candidateIndex = i; // the candidate index found: the name matches with indexDoc
                 break;
-            } else if (!docs[i].parentDir && ('readme' == docs[i].name.toLowerCase() || 'readme.md' == docs[i].file.toLowerCase())) {
+            } else if (!docs[i].data.parentDir && ('readme' == docs[i].data.name.toLowerCase() || 'readme.md' == docs[i].data.file.toLowerCase())) {
                 candidateIndex = i; // found the README.md
             }
         }
 
-        docs[candidateIndex].isIndex = true;
+        docs[candidateIndex].data.isIndex = true;
 
         return docs;
     }
