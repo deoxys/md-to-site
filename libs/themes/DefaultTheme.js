@@ -180,7 +180,6 @@ export default class DefaultTheme {
         }
         if (node.leaf) {
             if (node.children.length > 0) {
-                console.log(node.data.path)
                 var html = ``;
                 html += `<h4 class="submenu-title">${node.data.title}</h4>`;
 
