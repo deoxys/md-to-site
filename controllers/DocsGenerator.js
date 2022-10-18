@@ -59,9 +59,9 @@ function build(argv) {
         )
         .then((arr) => {
             
-            arr = tree.getNodes().filter(e => e.leaf).map((e) => e.data);
+            arr = tree.getNodes().filter(e => e.leaf);
             
-            DEBUG(arr.map((e) => e.path));
+            DEBUG(arr.map((e) => e.data.path));
             if (!arr.length) {
                 throw `The source folder "${params.source}" has no markdown files.`;
             }
@@ -93,15 +93,15 @@ function build(argv) {
                 });
 
                 // writing the HTML page content to the target file
-                Utils.writeFileSync(params.target + doc.htmlFileName, html);
+                Utils.writeFileSync(params.target + doc.data.htmlFileName, html);
 
                 // if the current doc in the loop is signed as index then the HTML
                 // content will be placed in the index as well
-                if (doc.isIndex) {
+                if (doc.data.isIndex) {
                     Utils.writeFileSync(params.target + "index.html", html);
                 }
 
-                INFO('The file "' + doc.file + '" has been compiled.');
+                INFO('The file "' + doc.data.file + '" has been compiled.');
             }
 
             createIndexSearchFile(params.target);

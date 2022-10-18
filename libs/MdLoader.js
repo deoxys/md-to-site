@@ -109,8 +109,8 @@ export class MdLoader {
 export class Tree {
     constructor(root) {
         this.nodes = [];
-        this.root = new Node(root, null, {}, false);
-        this.sorted = false;
+        this.root = new Node(root, null, {}, false, true);
+        this.modified = false;
     }
 
     getRoot() {
@@ -118,11 +118,15 @@ export class Tree {
     }
 
     removeNode(node) {
+        this.modified = true;
         this.nodes = this.nodes.filter((n) => n.id !== node.id);
     }
 
     getNodes(node = null) {
-        if (node) {
+        if (this.modified) {
+            this.modified = false;
+            this.nodes = this.getNodes(this.root);
+        } else if (node) {
             node.id != this.root.id ? this.nodes.push(node) : null;
             for (var child of node.children) {
                 this.nodes.concat(this.getNodes(child));
@@ -133,17 +137,19 @@ export class Tree {
     }
 
     sortNodes() {
+        this.modified = true;
         this.root.sortChildren();
     }
 }
 
 export class Node {
-    constructor(id, parent = null, data, leaf = false) {
+    constructor(id, parent = null, data, leaf = false, root = false) {
         this.id = id.toLowerCase();
         this.parent = parent;
         this.data = data;
         this.children = [];
         this.leaf = leaf;
+        this.root = root;
     }
 
     getChildren() {
