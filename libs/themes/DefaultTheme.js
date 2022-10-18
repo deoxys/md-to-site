@@ -6,14 +6,14 @@ export default class DefaultTheme {
      * @param  {Array}  docs                    list of all the doc files
      * @param  {Object} currentDoc              doc file that is going to be compiled to HTML
      * @param  {Object} [settings={}]           general site settings (like title)
+     * @param  {Object} node
      * @return {String}
      */
-    getHtmlPage(docs, currentDoc, settings={})
+    getHtmlPage(docs, currentDoc, node, settings={})
     {
         var siteTile = settings.title || 'Docs';
         var search = settings.hide && settings.hide.includes('search') ? false : true;
         var toc = settings.hide && settings.hide.includes('toc') ? false : true;
-
         var html = `<!DOCTYPE html>
         <html lang="en" dir="ltr">
             <head>
@@ -154,6 +154,38 @@ export default class DefaultTheme {
             </nav>
         `;
 
+        return html;
+    }
+
+    createMenu(docs, activeEntryFtitle=null, siteTile='Docs', node, depth=0) {
+        // console.log(node);
+        if (node.children.length > 0) {
+            var html = `<div class="d-${depth}">`
+            for (var child of node.children) {
+                html += this.createMenu(docs, activeEntryFtitle, siteTile, child, depth+1);
+            }
+            html += `</div>`;
+            return html;
+        }
+
+        var html = `
+            <div class="d-${depth}">`;
+                if (!node.data.isMD) {
+                    // console.log(doc);
+                    // if (prevDoc && prevDoc.parentMenuTitle != doc.parentMenuTitle) {
+                        var indentClassParent = node.data.indent > 0 ? 'submenu-item depth-' + node.data.indent : '';
+                        html += `<h4 class="submenu-title ${indentClassParent}">${node.data.name}</h4>`;
+                    // }
+                } else {
+                    // class for indenting the menu entries for sub folders
+                    var indentClass = node.data.indent > 0 ? 'submenu-item depth-' + node.data.indent : '';
+
+                    var entryClass = node.data.fullTitle == activeEntryFtitle ? 'active' : '';
+                    html += `<div><a href="${node.data.htmlFileName}" class="menu-item ${entryClass} ${indentClass}">${node.data.name}</a></div>`;
+                }
+        html += `
+            </div>
+        `;
         return html;
     }
 

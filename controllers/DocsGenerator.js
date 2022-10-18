@@ -59,35 +59,35 @@ function build(argv) {
         )
         .then((arr) => {
             
-            // console.log(tree.getNodes().filter(e => e.leaf));
             arr = tree.getNodes().filter(e => e.leaf).map((e) => e.data);
             
             DEBUG(arr.map((e) => e.path));
             if (!arr.length) {
                 throw `The source folder "${params.source}" has no markdown files.`;
             }
-
+            
             // add to the array of markdown file the HTML translation, page title and html filename
             var docs = htmlRender.appendHtmlInfoToMdDocs(arr, params.indexFile);
-
+            
             // sort the array by parent dir name and full title
             // docs = Utils.sortFiles(docs);
             // console.log(docs.map(e => e.path));
-
+            
             // creating the target directory if it does not exist
             Utils.createDirIfNotExists(params.target);
-
+            
             // copy the assets (CSS files) to the target directory
             htmlRender.copyAssetsToDestinationDir(params.target);
-
+            
             // looping the DOCS
             for (var doc of docs) {
                 // if the search is hidden then it exludes building the search index
                 if (!params.hide || !params.hide.includes("search"))
-                    appendToSearchIndex(doc);
-
+                appendToSearchIndex(doc);
+                
                 // getting the HTML of the page
-                var html = htmlRender.getHtmlPage(docs, doc, "default", {
+                const t = tree.root;
+                var html = htmlRender.getHtmlPage(docs, doc, "default", tree.root, {
                     title: params.siteTitle,
                     hide: params.hide,
                 });
