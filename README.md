@@ -12,7 +12,7 @@ It automatically creates the **menu**, **search engine** and the **table of cont
 # Installation
 
 ```
-npm install -g md-to-site
+npm install -g @deoxys-1/md-to-site
 ```
 
 # How to convert markdown files to a website
@@ -20,7 +20,7 @@ npm install -g md-to-site
 Run the command below in the directory that contains your markdown files:
 
 ```
-md-to-site -b
+md-to-site build
 ```
 
 It creates a new folder called `build` that will contains the HTML website.
@@ -28,7 +28,7 @@ It creates a new folder called `build` that will contains the HTML website.
 Optionally, you can specify a source folder and/or a target folder:
 
 ```
-md-to-site -b --source ~/Desktop/markdown --target ~/Desktop/docs_site
+md-to-site build ~/Desktop/markdown ~/Desktop/docs_site
 ```
 
 For more information please type `md-to-site -h` for the help.
