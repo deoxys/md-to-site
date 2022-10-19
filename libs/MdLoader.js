@@ -199,7 +199,7 @@ export class Node {
     }
 
     setLeaf(value) {
-        this.leaf ||= value;
+        this.leaf = value || this.leaf;
         if (this.parent) {
             this.parent.setLeaf(value);
         }

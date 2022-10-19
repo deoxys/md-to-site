@@ -1,5 +1,5 @@
 {
-  "name": "md-to-site",
+  "name": "@deoxys-1/md-to-site",
   "version": "1.8.0",
   "description": "Create a static HTML website from a folder containing markdown files.",
   "license": "MIT",
