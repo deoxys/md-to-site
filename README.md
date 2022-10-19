@@ -10,8 +10,6 @@ It automatically creates the **menu**, **search engine** and the **table of cont
 
 
 # Installation
-TODO: upload to npmjs
-
 ```
 npm install -g @deoxys-1/md-to-site
 ```
