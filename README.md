@@ -10,9 +10,10 @@ It automatically creates the **menu**, **search engine** and the **table of cont
 
 
 # Installation
+TODO: upload to npmjs
 
 ```
-npm install -g md-to-site
+npm install -g @deoxys-1/md-to-site
 ```
 
 # How to convert markdown files to a website
@@ -20,7 +21,7 @@ npm install -g md-to-site
 Run the command below in the directory that contains your markdown files:
 
 ```
-md-to-site -b
+md-to-site build
 ```
 
 It creates a new folder called `build` that will contains the HTML website.
@@ -28,7 +29,7 @@ It creates a new folder called `build` that will contains the HTML website.
 Optionally, you can specify a source folder and/or a target folder:
 
 ```
-md-to-site -b --source ~/Desktop/markdown --target ~/Desktop/docs_site
+md-to-site build ~/Desktop/markdown ~/Desktop/docs_site
 ```
 
 For more information please type `md-to-site -h` for the help.
@@ -90,11 +91,15 @@ docker build --tag md-to-site ./
 
 To run the container run the following command:
 ```
-docker run -v [Path to input folder]:/in -v [Path to output folder]:/out --rm md-to-site -b --source /in --target /out
+docker run -v [Path to input folder]:/in -v [Path to output folder]:/out --rm md-to-site build /in /out
 ```
 
 For example:
 ```
-docker run -v $PWD/pagebuilder:/in -v $PWD/pagebuilder/out:/out --rm md-to-site -b --source /in --target /out
+docker run -v $PWD/pagebuilder:/in -v $PWD/pagebuilder/out:/out --rm md-to-site build /in /out
 ```
-Note: --target has to be set in order to have output written outside of the container.
+
+Or just pull the image directly from Docker Hub without building:
+```
+docker run --rm deoxys/md-to-site
+```
