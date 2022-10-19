@@ -90,11 +90,15 @@ docker build --tag md-to-site ./
 
 To run the container run the following command:
 ```
-docker run -v [Path to input folder]:/in -v [Path to output folder]:/out --rm md-to-site -b --source /in --target /out
+docker run -v [Path to input folder]:/in -v [Path to output folder]:/out --rm md-to-site build /in /out
 ```
 
 For example:
 ```
-docker run -v $PWD/pagebuilder:/in -v $PWD/pagebuilder/out:/out --rm md-to-site -b --source /in --target /out
+docker run -v $PWD/pagebuilder:/in -v $PWD/pagebuilder/out:/out --rm md-to-site build /in /out
 ```
-Note: --target has to be set in order to have output written outside of the container.
+
+Or just pull the image directly from Docker Hub without building:
+```
+docker run --rm deoxys/md-to-site
+```
